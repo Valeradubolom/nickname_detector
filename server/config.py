@@ -28,7 +28,7 @@ class Config:
 
     # 3. Настройки Telegram бота
     TELEGRAM = {
-        'BOT_TOKEN': os.getenv('TELEGRAM_BOT_TOKEN', ''),  # Токен бота
+        'BOT_TOKEN': os.getenv('TELEGRAM_BOT_TOKEN', ''),  # Токен бота(ДОДЕЛАТЬ!)
         'ADMIN_IDS': [123456789],  # ID администраторов (могут удалять)
         'NOTIFY_CHAT_ID': -100123456,  # Чат для уведомлений
         'MAX_NICKNAME_LENGTH': 25  # Макс. длина никнейма
