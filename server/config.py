@@ -52,6 +52,3 @@ class Config:
 # Создаем экземпляр конфигурации
 config = Config()
 
-# Пример использования:
-# from config import config
-# print(config.API['PORT'])
