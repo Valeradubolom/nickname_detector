@@ -66,7 +66,7 @@ def check_nickname():
         with get_db_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
-                'SELECT * FROM nicknames WHERE nickname = ?', 
+                'SELECT * FROM nicknames WHERE nickname = ?',
                 (nickname,)
             )
             result = cursor.fetchone()
