@@ -1,54 +1,63 @@
+# -*- coding: utf-8 -*-
+"""
+Конфигурационный файл для Nickname Detector
+"""
 
 import os
-from dotenv import load_dotenv  # Для загрузки переменных окружения
+from pathlib import Path
+from dotenv import load_dotenv
 
-# Загружаем переменные из файла .env (если есть)
-load_dotenv()
-
+load_dotenv('nknmdtcr.env')
 
 class Config:
     """Основные настройки приложения"""
 
     # 1. Настройки базы данных
     DATABASE = {
-        'PATH': 'nicknames.db',  # Путь к файлу SQLite
-        'TABLE_NAME': 'tracked_nicknames',  # Название таблицы
-        'BACKUP_DIR': 'backups',  # Папка для резервных копий
-        'BACKUP_DAYS': 7  # Хранить резервные копии N дней
+        'PATH': str(Path(__file__).parent / 'data' / 'nicknames.db'),
+        'URL': os.getenv('DATABASE_URL', f'sqlite:///{Path(__file__).parent}/data/nicknames.db'),
+        'TABLE_NAME': 'tracked_nicknames',
+        'BACKUP_DIR': str(Path(__file__).parent / 'backups'),
+        'BACKUP_DAYS': 7
     }
 
     # 2. Настройки API сервера
     API = {
-        'HOST': '0.0.0.0',  # Хост для запуска сервера
-        'PORT': 5000,  # Порт сервера
-        'DEBUG': True,  # Режим отладки (False в продакшене)
-        'SECRET_KEY': os.getenv('API_SECRET_KEY', 'default-secret-key'),  # Ключ API
-        'RATE_LIMIT': '100/day'  # Лимит запросов (100 в день)
+        'HOST': os.getenv('API_HOST', '0.0.0.0'),
+        'PORT': int(os.getenv('API_PORT', 5000)),
+        'DEBUG': os.getenv('API_DEBUG', 'false').lower() == 'true',
+        'SECRET_KEY': os.getenv('API_SECRET_KEY', 'default-secret-key'),
+        'RATE_LIMIT': os.getenv('API_RATE_LIMIT', '100/day')
     }
 
     # 3. Настройки Telegram бота
     TELEGRAM = {
-        'BOT_TOKEN': os.getenv('TELEGRAM_BOT_TOKEN', ''),  # Токен бота(ДОДЕЛАТЬ!)
-        'ADMIN_IDS': [123456789],  # ID администраторов (могут удалять)
-        'NOTIFY_CHAT_ID': -100123456,  # Чат для уведомлений
-        'MAX_NICKNAME_LENGTH': 25  # Макс. длина никнейма
+        'BOT_TOKEN': os.getenv('TELEGRAM_BOT_TOKEN'),
+        'ADMIN_IDS': [int(x) for x in os.getenv('TELEGRAM_ADMIN_IDS', '').split(',') if x],
+        'NOTIFICATION_CHAT_ID': os.getenv('TELEGRAM_NOTIFICATION_CHAT_ID'),
+        'MAX_NICKNAME_LENGTH': 25
     }
 
-    # 4. Настройки OCR (для будущего расширения)
+    # 4. Настройки OCR
     OCR = {
-        'SCREEN_REGION': (100, 100, 300, 200),  # (x1, y1, x2, y2)
-        'LANG': 'rus+eng',  # Языки распознавания
-        'TESSERACT_PATH': '/usr/bin/tesseract'  # Путь к Tesseract OCR
+        'SCREEN_REGION': tuple(map(int, os.getenv('OCR_SCREEN_REGION', '100,100,300,200').split(','))) if os.getenv('OCR_SCREEN_REGION') else None,
+        'LANG': os.getenv('OCR_LANG', 'rus+eng'),
+        'TESSERACT_PATH': os.getenv('TESSERACT_PATH', '/usr/bin/tesseract')
     }
 
     # 5. Логирование
     LOGGING = {
-        'LEVEL': 'INFO',  # DEBUG/INFO/WARNING/ERROR
+        'LEVEL': os.getenv('LOG_LEVEL', 'INFO'),
         'FORMAT': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        'FILE': 'server.log'  # Файл для логов
+        'FILE': str(Path(__file__).parent / 'logs' / 'server.log'),
+        'MAX_SIZE': 5 * 1024 * 1024,
+        'BACKUP_COUNT': 3
     }
 
-
-# Создаем экземпляр конфигурации
 config = Config()
 
+if __name__ == '__main__':
+    print("=== Тест конфигурации ===")
+    print("Токен бота:", config.TELEGRAM['BOT_TOKEN'] or 'НЕ НАЙДЕН')
+    print("ID админов:", config.TELEGRAM['ADMIN_IDS'])
+    print("Путь к БД:", config.DATABASE['PATH'])
